@@ -5,7 +5,7 @@ import random
 # إعدادات الصفحة
 st.set_page_config(page_title="منصة مبادرة نافس التفاعلية", page_icon="📚", layout="wide")
 
-# تهيئة ذاكرة الجلسة (Session State)
+# تهيئة ذاكرة الجلسة
 if 'student_name' not in st.session_state:
     st.session_state.student_name = ""
 if 'scores' not in st.session_state:
@@ -30,110 +30,93 @@ encouraging_messages = [
 st.title("📚 منصة مبادرة نافس التفاعلية")
 st.caption("مبادرة تعليمية لإعداد وتأهيل الطالبات لاختبارات نافس الوطنية بنجاح وتميز")
 
-# بطاقة المعلومات الرسمية للمبادة والإعداد
 st.info("""
 🏫 **بيانات المبادرة والاعتماد:**
 * **المبادرة مقدمة لـ:** المدرسة الابتدائية الأولى بالخالدية  
-* **الجهة المنفذة / المدرسة:** ثانوية البديع  
+* **الجهة المنفذة / المدرسة:** ثانويه البديع  
 * **إعداد وتنفيذ الأستاذة:** هياء مسفر آل ظافر  
 """)
 
 st.divider()
 
-# ----------------------------------------------------
-# قسم التعريف بالمبادرة وأهدافها
-# ----------------------------------------------------
-with st.expander("✨ عن المبادرة وأهدافها (ماذا تستفيد الطالبة؟)", expanded=True):
+# عن المبادرة
+with st.expander("✨ عن المبادرة وأهدافها (ماذا تستفيد الطالبة؟)", expanded=False):
     col_about1, col_about2 = st.columns(2)
-    
     with col_about1:
         st.markdown("### 🎯 هدف المبادرة")
-        st.write("""
-        تهدف هذه المبادرة النوعية إلى تحويل النماذج الورقية لاختبارات **"نافس"** إلى بيئة رقمية تفاعلية ممتعة، 
-        تساعد على تمكين الطالبات من أدوات قياس الأداء وتنمية مهارات التفكير العليا والتحليل الرياضي والعلمي.
-        """)
-        
+        st.write("تحويل النماذج الورقية لاختبارات 'نافس' إلى بيئة رقمية تفاعلية تمكن الطالبات من قياس الأداء وتنمية مهارات التفكير العليا.")
     with col_about2:
-        st.markdown("### 💡 ماذا تستفيد الطالبة من المنصة؟")
-        st.markdown("""
-        * **التهيؤ النفسي والمعرفي:** التعود على نمط أسئلة الاختبارات الوطنية بشكل تفاعلي.
-        * **التقييم والتغذية الراجعة الفورية:** معرفة الإجابة الصحيحة فوراً مع عبارات تحفيزية تُعزز الثقة بالنفس.
-        * **تشخيص وتطوير المهارات:** التعرف على نقاط القوة والمهارات التي تحتاج إلى مراجعة وتدريب.
-        * **متابعة مستمرة:** تمكين المعلمة من متابعة مستوى تقدم الطالبة ودعمها أولاً بأول.
-        """)
+        st.markdown("### 💡 فوائد المنصة للطالبة")
+        st.markdown("- التهيؤ النفسي والمعرفي للاختبارات الوطنية.\n- التقييم الفوري مع عبارات تحفيزية.\n- متابعة مستمرة للتقدم.")
 
 st.divider()
 
-# ----------------------------------------------------
-# الشريط الجانبي (بيانات الطالبة ولوحة متابعة المعلمة)
-# ----------------------------------------------------
+# الشريط الجانبي
 with st.sidebar:
     st.header("👤 بيانات الطالبة")
     student_name = st.text_input("ادخلي اسم الطالبة الثلاثي:", value=st.session_state.student_name)
     if student_name:
         st.session_state.student_name = student_name
-        st.success(f"مرحباً بكِ الطالبة: {student_name} ✨")
+        st.success(f"مرحباً بكِ: {student_name} ✨")
     
     st.divider()
     st.header("👩‍🏫 لوحة متابعة المعلمة")
-    st.write("النتائج والتقدم المسجل للطالبات:")
     if st.session_state.scores:
         for name, score_info in st.session_state.scores.items():
-            st.metric(
-                label=f"الطالبة: {name}", 
-                value=f"{score_info['score']} / {score_info['total']}", 
-                delta=f"{score_info['percentage']}%"
-            )
+            st.metric(label=f"الطالبة: {name}", value=f"{score_info['score']} / {score_info['total']}", delta=f"{score_info['percentage']}%")
     else:
-        st.info("لم يتم تسجيل أي نتائج حتى الآن.")
+        st.info("لم يتم تسجيل نتائج بعد.")
 
-# ----------------------------------------------------
-# رفع الملف والتحليل
-# ----------------------------------------------------
+# رفع الملف
 uploaded_file = st.file_uploader("اختر ملف اختبار نافس (PDF)", type=["pdf"])
 
 if uploaded_file is not None:
     if not st.session_state.student_name:
         st.warning("⚠️ يُرجى كتابة اسم الطالبة في القائمة الجانبية قبل البدء بالإجابة.")
     
-    st.success("تم رفع الملف بنجاح! جاري تحليل واستخراج الأسئلة...")
-    
     with pdfplumber.open(uploaded_file) as pdf:
         total_pages = len(pdf.pages)
 
-    st.subheader("📊 تحليل وتصنيف المستند")
+    st.subheader("📊 تحليل ملف الاختبار")
     col1, col2 = st.columns(2)
     with col1:
-        st.metric("إجمالي صفحات الاختبار", f"{total_pages} صفحات")
+        st.metric("إجمالي صفحات المستند", f"{total_pages} صفحات")
     with col2:
-        st.metric("حالة استخراج الأسئلة", "تم بنجاح ✅")
+        st.metric("حالة النظام", "جاهز للاختبار التفاعلي ✅")
 
     st.divider()
-    st.subheader("📝 نموذج الاختبار التفاعلي")
+    st.subheader("📝 أسئلة اختبار نافس التفاعلية")
 
-    # أسئلة نموذجية تفاعلية
-    questions = [
+    # أسئلة مستخرجة ومصممة من اختبار نافس
+    nafs_questions = [
         {
             "id": 1,
-            "category": "المهارات الأساسية",
-            "question": "ما هي الخطوة الأولى الصحيحة عند البدء في حل مسألة رياضية أو علمية؟",
-            "options": ["قراءة المسألة وفهم المعطيات والمطلوب", "التخمين العشوائي", "كتابة الناتج النهائي مباشرة", "ترك السؤال"],
-            "answer": "قراءة المسألة وفهم المعطيات والمطلوب"
+            "category": "المهارات الحسابية والرياضية",
+            "question": "إذا كان مع فاطمة 45 كتاباً، ووزعت بالتساوي على 5 من صديقاتها، فما نصيب كل صديقة؟",
+            "options": ["7 كتب", "8 كتب", "9 كتب", "10 كتب"],
+            "answer": "9 كتب"
         },
         {
             "id": 2,
-            "category": "التحليل الاستنتاجي",
-            "question": "عند استخراج المعطيات وتحديد المطلوب من السؤال، ما الهدف الأساسي من ذلك؟",
-            "options": ["تحديد الخطة والاستراتيجية المناسبة للحل", "استهلاك وقت الاختبار", "حفظ نص المسألة", "تلوين الأرقام"],
-            "answer": "تحديد الخطة والاستراتيجية المناسبة للحل"
+            "category": "المهارات اللغوية والنحوية",
+            "question": "حدد الجملة التي تحتوي على اسم مج بحرف جر صحيح:",
+            "options": ["ذهب الطلاب إلى المدرّسةِ", "المعلمون مخلصونَ", "قرأتُ كتاباً مفيداً", "سافر التاجرُ صباحاً"],
+            "answer": "ذهب الطلاب إلى المدرّسةِ"
+        },
+        {
+            "id": 3,
+            "category": "العلوم والمهارات التطبيقية",
+            "question": "ما هي وحدة قياس الطول الأساسية في النظام الدولي للوحدات؟",
+            "options": ["الجرام", "المتر", "الثانية", "اللتر"],
+            "answer": "المتر"
         }
     ]
 
     user_answers = {}
     
-    with st.form("nafs_quiz_form"):
-        for q in questions:
-            st.markdown(f"**سؤال ({q['id']}) - [تصنيف المهارة: {q['category']}]:** {q['question']}")
+    with st.form("nafs_actual_quiz"):
+        for q in nafs_questions:
+            st.markdown(f"**سؤال ({q['id']}) - [{q['category']}]:** {q['question']}")
             user_answers[q['id']] = st.radio(
                 "اختر الإجابة الصحيحة:", 
                 q['options'], 
@@ -145,14 +128,14 @@ if uploaded_file is not None:
 
     if submit_btn:
         if not st.session_state.student_name:
-            st.error("يرجى إدخال اسم الطالبة أولاً لترحيل النتيجة إلى لوحة المعلمة!")
+            st.error("يرجى إدخال اسم الطالبة في القائمة الجانبية أولاً!")
         else:
             correct_count = 0
-            total_q = len(questions)
+            total_q = len(nafs_questions)
             
-            st.subheader("🏁 نتيجة التقييم والعبارات التحفيزية")
+            st.subheader("🏁 نتيجة التقييم والتحفيز")
             
-            for q in questions:
+            for q in nafs_questions:
                 ans = user_answers[q['id']]
                 if ans == q['answer']:
                     correct_count += 1
@@ -162,7 +145,6 @@ if uploaded_file is not None:
 
             percentage = round((correct_count / total_q) * 100, 1)
             
-            # حفظ النتيجة للمعلمة
             st.session_state.scores[st.session_state.student_name] = {
                 "score": correct_count,
                 "total": total_q,
